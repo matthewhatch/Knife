@@ -5,7 +5,10 @@ return an object with Get(show) functions
 
 There are only a few commands available, I will be adding them as I need to
 
-##cmdlets
+###Installation
+
+
+###cmdlets
 - Invoke-ChefClient
   ```powershell
     $Cred = Get-Credential

@@ -10,10 +10,10 @@ There are only a few commands available, I will be adding them as I need to
 
 ###cmdlets
 - Invoke-ChefClient
-  ```powershell
-    $Cred = Get-Credential
-    Invoke-ChefClient -ComputerName Server00001 -Credential $Cred
-  ```
+```powershell
+  $Cred = Get-Credential
+  Invoke-ChefClient -ComputerName Server00001 -Credential $Cred
+```
 - Show-ChefNode
 ```powershell
   Show-ChefNode -Node 'node1' -ChefRepo 'c:\chef-repo'

@@ -17,11 +17,11 @@ wraps the 'knife cookbook upload' command
 ```powershell
 Copy-Cookbook -Cookbook 'IIS' -ChefRepo 'c:\chef-repo'
 ```
-####Show-ChefEnvironment
+####Get-ChefEnvironment
 ```powershell
 Show-ChefEnvironment -Environment 'dev' -ChefRepo 'c:\chef-repo'
 ```
-####Show-ChefNode
+####Get-ChefNode
 ```powershell
   Show-ChefNode -Node 'node1' -ChefRepo 'c:\chef-repo'
 ```

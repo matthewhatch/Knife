@@ -49,7 +49,7 @@ Function Invoke-ChefClient {
       if($PSBoundParameters.ContainsKey('ChefRepo')){
         Set-Location $CacheLocation
       }
-      
+
     }
     catch{
         Write-Warning "There was an issue running chef-client on $ComputerName"
@@ -129,7 +129,7 @@ Function Copy-Cookbook {
   .Example
     Show-ChefNode -Node Node1,Node2,Node3
 #>
-Function Show-ChefNode {
+Function Get-ChefNode {
   [CmdletBinding()]
   param(
     [Parameter(Mandatory=$true)]
@@ -143,19 +143,28 @@ Function Show-ChefNode {
   }
 
   foreach ($item in $Node){
-    $results = & knife node show $item
-    $properties = @{
-      Name = $results[0].Replace('Node Name:','').Trim()
-      Environment = $results[1].Replace('Environment:','').Trim()
-      FQDN = $results[2].Replace('FQDN:','').Trim()
-      IP = $results[3].Replace('IP:','').Trim()
-      RunList = $results[4].Replace('Run List:','').Trim().Split(',')
-      Roles = $results[5].Replace('Roles:','').Trim().Split(',')
-      Recipes = $results[6].Replace('Recipes:','').Trim().Split(',') | ForEach-Object {($_).Trim()} #removing leading space for each item
-      Platform = $results[7].Replace('Platform:','').Trim()
-      Tags = $results[8].Replace('Tags:','').Trim().Split(',')
+    try{
+      $results = get-node -Node $item #& knife node show $item
+      $properties = @{
+        Name = $results[0].Replace('Node Name:','').Trim()
+        Environment = $results[1].Replace('Environment:','').Trim()
+        FQDN = $results[2].Replace('FQDN:','').Trim()
+        IP = $results[3].Replace('IP:','').Trim()
+        RunList = $results[4].Replace('Run List:','').Trim().Split(',')
+        Roles = $results[5].Replace('Roles:','').Trim().Split(',')
+        Recipes = $results[6].Replace('Recipes:','').Trim().Split(',') | ForEach-Object {($_).Trim()} #removing leading space for each item
+        Platform = $results[7].Replace('Platform:','').Trim()
+        Tags = $results[8].Replace('Tags:','').Trim().Split(',')
+      }
     }
-    Write-Output (New-Object -TypeName PSObject -Property $properties)
+    catch{
+      if($PSBoundParameters.ContainsKey('ChefRepo')){
+        Set-Location $CacheLocation
+      }
+      Write-Warning "There was an issue getting information about $item"
+      Write-Error $Error[0]
+    }
+      Write-Output (New-Object -TypeName PSObject -Property $properties)
   }
 
   if($PSBoundParameters.ContainsKey('ChefRepo')){
@@ -164,7 +173,7 @@ Function Show-ChefNode {
 
 }
 
-Function Show-ChefEnvironment {
+Function Get-ChefEnvironment {
   [CmdletBinding()]
   param(
     [string[]]$Environment,
@@ -178,6 +187,9 @@ Function Show-ChefEnvironment {
   }
   foreach ($item in $Environment){
     $results = & knife environment show $item
+    $properties = @{
+
+    }
     Write-Output $results
   }
 
@@ -186,3 +198,13 @@ Function Show-ChefEnvironment {
   }
 
 }
+
+function get-node {
+  param(
+    [string]$Node
+  )
+    & knife node show $item
+}
+
+Export-ModuleMember -Function Get-*
+Export-ModuleMember -Function Invoke-*

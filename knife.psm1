@@ -17,21 +17,44 @@
     Invoke-Client -Computername Server001 -Credential $Cred
 #>
 Function Invoke-ChefClient {
+  [CmdletBinding(SupportsShouldProcess=$true)]
   param(
     [string]$ComputerName,
 
-    [PSCredential]$Credential
+    [PSCredential]$Credential,
+
+    [string]$ChefRepo
   )
 
   $username = $Credential.UserName
 
-  if($username -notmatch 'corp'){
-    $username = "corp\$username"
+  if($username -notmatch '\\'){
+    Write-Verbose 'Updating username with Domain'
+    $username = "$env:USERDOMAIN\$username"
+    Write-Verbose "Username updated to $username"
   }
 
   $password = $Credential.GetNetworkCredential().Password
-  & knife winrm $ComputerName chef-client --manual-list --winrm-user $username --winrm-password $password
+  if($PSCmdlet.ShouldProcess("$Computername with user $username")){
+    Write-Verbose "checking configuration on $ComputerName"
+    try{
+      $CacheLocation = Get-Location
 
+      if($PSBoundParameters.ContainsKey('ChefRepo')){
+        Set-Location $ChefRepo
+      }
+
+      & knife winrm $ComputerName chef-client --manual-list --winrm-user $username --winrm-password $password
+
+      if($PSBoundParameters.ContainsKey('ChefRepo')){
+        Set-Location $CacheLocation
+      }
+      
+    }
+    catch{
+        Write-Warning "There was an issue running chef-client on $ComputerName"
+    }
+  }
 }
 
 <#
@@ -51,11 +74,9 @@ Function Invoke-ChefClient {
   .Example
     Copy-Cookbook -Cookbook Cookbook001
 
-
-
 #>
 Function Copy-Cookbook {
-  [CmdletBinding()]
+  [CmdletBinding(SupportsShouldProcess=$true)]
   param(
     [Parameter(Mandatory=$true)]
     [string[]]$Cookbook,
@@ -72,12 +93,96 @@ Function Copy-Cookbook {
 
   foreach ($book in $CookBook){
       Write-Verbose "starting the upload of $book"
-      & knife cookbook upload $book
-      Write-Verbose "upload of $book complete!"
+      if($PSCmdlet.ShouldProcess("$book")){
+        & knife cookbook upload $book
+        Write-Verbose "upload of $book complete!"
+      }
   }
 
   if($PSBoundParameters.ContainsKey('ChefRepo')-and (-not($Cachelocation.path -eq $ChefRepo))){
     Write-Verbose "Changing location back to $CacheLocation"
     Set-Location $Cachelocation
   }
+}
+
+<#
+  .Synopsis
+    Show the configuration and status of a node
+
+  .Description
+    Returns a PSObject with Name, Environment, FQDN, IP, RunList, Roles, Recipes,
+    Platform, Tags properties
+
+  .Parameter Node
+    Chef Node
+
+  .Parameter ChefRepo
+    Location of the chef repo, if you are running from the chef repo, you can
+    omit this parameter
+
+  .Example
+    Show-ChefNode -Node Node1 -ChefRepo c:\Chef-repo
+
+  .Example
+    Show-ChefNode -Node Node1
+
+  .Example
+    Show-ChefNode -Node Node1,Node2,Node3
+#>
+Function Show-ChefNode {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory=$true)]
+    [string[]]$Node,
+
+    [string]$ChefRepo
+  )
+  $CacheLocation = Get-Location
+  if($PSBoundParameters.ContainsKey('ChefRepo')){
+    Set-Location $ChefRepo
+  }
+
+  foreach ($item in $Node){
+    $results = & knife node show $item
+    $properties = @{
+      Name = $results[0].Replace('Node Name:','').Trim()
+      Environment = $results[1].Replace('Environment:','').Trim()
+      FQDN = $results[2].Replace('FQDN:','').Trim()
+      IP = $results[3].Replace('IP:','').Trim()
+      RunList = $results[4].Replace('Run List:','').Trim().Split(',')
+      Roles = $results[5].Replace('Roles:','').Trim().Split(',')
+      Recipes = $results[6].Replace('Recipes:','').Trim().Split(',') | ForEach-Object {($_).Trim()} #removing leading space for each item
+      Platform = $results[7].Replace('Platform:','').Trim()
+      Tags = $results[8].Replace('Tags:','').Trim().Split(',')
+    }
+    Write-Output (New-Object -TypeName PSObject -Property $properties)
+  }
+
+  if($PSBoundParameters.ContainsKey('ChefRepo')){
+    Set-Location $CacheLocation
+  }
+
+}
+
+Function Show-ChefEnvironment {
+  [CmdletBinding()]
+  param(
+    [string[]]$Environment,
+
+    [string]$ChefRepo
+  )
+
+  $CacheLocation = Get-Location
+  if($PSBoundParameters.ContainsKey('ChefRepo')){
+      Set-Location $ChefRepo
+  }
+  foreach ($item in $Environment){
+    $results = & knife environment show $item
+    Write-Output $results
+  }
+
+  if($PSBoundParameters.ContainsKey('ChefRepo')){
+    Set-Location $CacheLocation
+  }
+
 }

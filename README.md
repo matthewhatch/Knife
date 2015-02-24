@@ -5,16 +5,14 @@ return an object with Get(show) functions
 
 There are only a few commands available, I will be adding them as I need to
 
-###Installation
+##Usage
 
-
-###cmdlets
-- Invoke-ChefClient
+####Invoke-ChefClient
 ```powershell
   $Cred = Get-Credential
   Invoke-ChefClient -ComputerName Server00001 -Credential $Cred
 ```
-- Show-ChefNode
+####Show-ChefNode
 ```powershell
   Show-ChefNode -Node 'node1' -ChefRepo 'c:\chef-repo'
 ```
@@ -30,3 +28,6 @@ Name        : node1
 FQDN        : server0001.somewhere.com
 Platform    : windows 6.3.9600
 ```
+##Installation
+1. Download the zip file
+2. Extract Knife directory to c:\program files\WindowsPowershell\Modules

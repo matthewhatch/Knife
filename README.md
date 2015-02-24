@@ -9,8 +9,17 @@ There are only a few commands available, I will be adding them as I need to
 
 ####Invoke-ChefClient
 ```powershell
-  $Cred = Get-Credential
-  Invoke-ChefClient -ComputerName Server00001 -Credential $Cred
+$Cred = Get-Credential
+Invoke-ChefClient -ComputerName Server00001 -Credential $Cred
+```
+####Copy-Cookbook
+wraps the 'knife cookbook upload' command
+```powershell
+Copy-Cookbook -Cookbook 'IIS' -ChefRepo 'c:\chef-repo'
+```
+####Show-ChefEnvironment
+```powershell
+Show-ChefEnvironment -Environment 'dev' -ChefRepo 'c:\chef-repo'
 ```
 ####Show-ChefNode
 ```powershell
@@ -31,3 +40,8 @@ Platform    : windows 6.3.9600
 ##Installation
 1. Download the zip file
 2. Extract Knife directory to c:\program files\WindowsPowershell\Modules
+
+##TODO
+- Add Pester Tests
+- Update Help
+- Update Show-Environment

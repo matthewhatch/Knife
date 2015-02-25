@@ -1,7 +1,7 @@
 Import-Module ./knife.psm1 -Force
 
 Describe 'Get-ChefNode'{
-  Mock -CommandName get-node -ModuleName Knife {
+  Mock -CommandName _knifenodeshow -ModuleName Knife {
     $return = @"
 Node Name:   node1
 Environment: mockprod
@@ -17,9 +17,10 @@ Tags:        dsc
   }
 
   $node = Get-ChefNode -Node 'node1' -ChefRepo 'c:\chef-repo'
+  $parameters = (Get-Command Get-ChefNode).parameters
 
   It 'Should Call get-node once'{
-    Assert-MockCalled -CommandName get-node -ModuleName Knife -Exactly 1
+    Assert-MockCalled -CommandName _knifenodeshow -ModuleName Knife -Exactly 1
   }
 
   It 'should return an object with an Environment Property that matches mockprod'{
@@ -35,7 +36,7 @@ Tags:        dsc
   }
 
   It 'Should return an object with a Recipes Property matches all the recipes'{
-    $node.Recipes | Should Be 'dsc, new_iis, globallockdown, globallockdown::iislogs, globallockdown::ApplicationPoolDefaults, globallockdown::fmgloballog, DSCTestAppPool, dsc::default, new_iis::default, globallockdown::default, DSCTestAppPool::default'
+    $node.Recipes -contains 'dsc'| Should Be $true #'dsc, new_iis, globallockdown, globallockdown::iislogs, globallockdown::ApplicationPoolDefaults, globallockdown::fmgloballog, DSCTestAppPool, dsc::default, new_iis::default, globallockdown::default, DSCTestAppPool::default'
   }
 
   It 'Should return an object with a Tags Property that matches dsc'{
@@ -48,6 +49,10 @@ Tags:        dsc
 
   It 'Should return an object with a RunList Property that matches role[webserver]'{
     $node.RunList | Should Be 'role[webserver]'
+  }
+
+  It 'Should retuen an object with a FQDN Property that matches johndscx04.corp.fmglobal.com'{
+    $node.FQDN | Should Be 'johndscx04.corp.fmglobal.com'
   }
 
 }

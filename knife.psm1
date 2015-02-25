@@ -144,7 +144,7 @@ Function Get-ChefNode {
 
   foreach ($item in $Node){
     try{
-      $results = get-node -Node $item #& knife node show $item
+      $results = _knifenodeshow -Node $item #& knife node show $item
       $properties = @{
         Name = $results[0].Replace('Node Name:','').Trim()
         Environment = $results[1].Replace('Environment:','').Trim()
@@ -199,7 +199,7 @@ Function Get-ChefEnvironment {
 
 }
 
-function get-node {
+function _knifenodeshow {
   param(
     [string]$Node
   )

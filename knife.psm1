@@ -176,15 +176,16 @@ Function Get-ChefNode {
 Function Get-ChefEnvironment {
   [CmdletBinding()]
   param(
-    [string[]]$Environment,
+    [Parameter(Mandatory=$true)]
+    [System.string[]]
+    $Environment,
 
-    [string]$ChefRepo
+    [System.string]
+    $ChefRepo = (Get-Location)
   )
 
   $CacheLocation = Get-Location
-  if($PSBoundParameters.ContainsKey('ChefRepo')){
-      Set-Location $ChefRepo
-  }
+
   foreach ($item in $Environment){
     $results = & knife environment show $item
     $properties = @{
@@ -193,9 +194,7 @@ Function Get-ChefEnvironment {
     Write-Output $results
   }
 
-  if($PSBoundParameters.ContainsKey('ChefRepo')){
-    Set-Location $CacheLocation
-  }
+  Set-Location $CacheLocation
 
 }
 

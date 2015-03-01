@@ -19,6 +19,14 @@ Tags:        dsc
   $node = Get-ChefNode -Node 'node1' -ChefRepo 'c:\chef-repo'
   $parameters = (Get-Command Get-ChefNode).parameters
 
+  It 'Should accept parameter node'{
+    $parameters.ContainsKey('node') | Should Be $true
+  }
+
+  It 'Should accept parameter ChefRepo' {
+    $parameters.ContainsKey('Chefrepo') | Should Be $true
+  }
+
   It 'Should Call get-node once'{
     Assert-MockCalled -CommandName _knifenodeshow -ModuleName Knife -Exactly 1
   }

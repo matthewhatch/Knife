@@ -133,9 +133,11 @@ Function Get-ChefNode {
   [CmdletBinding()]
   param(
     [Parameter(Mandatory=$true)]
-    [string[]]$Node,
+    [string[]]
+    $Node,
 
-    [string]$ChefRepo
+    [string]
+    $ChefRepo
   )
   $CacheLocation = Get-Location
   if($PSBoundParameters.ContainsKey('ChefRepo')){
@@ -207,3 +209,4 @@ function _knifenodeshow {
 
 Export-ModuleMember -Function Get-*
 Export-ModuleMember -Function Invoke-*
+Export-ModuleMember -Function Copy-*

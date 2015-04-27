@@ -38,16 +38,17 @@ Function Invoke-ChefClient {
   if($PSCmdlet.ShouldProcess("$Computername with user $username")){
     Write-Verbose "checking configuration on $ComputerName"
     try{
-      $CacheLocation = Get-Location
+      #$CacheLocation = Get-Location
 
       if($PSBoundParameters.ContainsKey('ChefRepo')){
-        Set-Location $ChefRepo
+        Push-Location $ChefRepo
       }
 
       & knife winrm $ComputerName chef-client --manual-list --winrm-user $username --winrm-password $password
 
       if($PSBoundParameters.ContainsKey('ChefRepo')){
-        Set-Location $CacheLocation
+        #Set-Location $CacheLocation
+        Pop-Location
       }
 
     }

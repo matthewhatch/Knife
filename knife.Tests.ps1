@@ -1,4 +1,4 @@
-Import-Module ./knife.psm1 -Force
+    Import-Module ./knife.psm1 -Force
 
 Describe 'Get-ChefNode'{
   Mock -CommandName _knifenodeshow -ModuleName Knife {
@@ -16,7 +16,7 @@ Tags:        dsc
     Write-Output ($return -Split '\r?\n')
   }
 
-  $node = Get-ChefNode -Node 'node1' -ChefRepo 'c:\chef-repo'
+  $node = Get-ChefNode -Node 'node1'
   $parameters = (Get-Command Get-ChefNode).parameters
 
   It 'Should accept parameter node'{
